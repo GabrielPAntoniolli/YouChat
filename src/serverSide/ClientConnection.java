@@ -24,7 +24,9 @@ public class ClientConnection implements Runnable {
 
     Socket client;
     public String name;
-
+    OutputStream targetClientOut;
+    InputStream targetClientIn;
+    Scanner targetClientReader;
     /**
      *
      */
@@ -41,20 +43,24 @@ public class ClientConnection implements Runnable {
             InputStream in = client.getInputStream();
             out = client.getOutputStream();
             Scanner scanner = new Scanner(in).useDelimiter("\\n");
-    
+            
+            
             while(true){
                 String userRequest = scanner.nextLine();
                 
                 if(userRequest.equals("INSERT_NAME")){
                     String temp = name = scanner.nextLine();
                     addUser(temp);
+                    connectedClients.put(name, client);
                     System.out.println("User added to the server: " + name);
                     System.out.println("Amount of users connected is:" + currentUsers.size());
-                }
-                if(userRequest.equals("JOIN_SERVER")){
+                
+                } else if(userRequest.equals("JOIN_SERVER")){
                     System.out.println(name + " has joined the server");
-                }
-                if(userRequest.equals("DECISION_1")){
+                    out.write("JOIN_SERVER_APPROVED\n".getBytes());
+                    out.flush();
+                    
+                } else if(userRequest.equals("DECISION_1")){
                     
                     String userList = String.join(",", currentUsers);
                     userList += "\n";
@@ -64,15 +70,32 @@ public class ClientConnection implements Runnable {
                     out.write(clientMessage.getBytes());
                     out.write(userList.getBytes());
                     out.flush();
-                }
-                if(userRequest.equals("CHAT_REQUEST")){
+                
+                } else if(userRequest.equals("CHAT_REQUEST")){
                     String from = scanner.nextLine();
                     String to = scanner.nextLine();
-                    /*
-                    while(true){
-                        
+                    targetClientOut = connectedClients.get(to).getOutputStream();
+                    targetClientIn = connectedClients.get(to).getInputStream();
+                     targetClientReader = new Scanner(targetClientIn).useDelimiter("\\n");
+                    /**
+                     * Testing if I Could find the sockets, ansert is TRUEEEE
+                     */
+//                    System.out.println(connectedClients.get(from) + " this is the from socket");
+//                    System.out.println("This is the to socket: " + connectedClients.get(to));
+                        out.write("PREPARE_CHAT\n".getBytes());
+                        String fromDetails = from + "\n";
+                        String toDetails = to + "\n";
+                        out.write(toDetails.getBytes());
+                        out.flush();
+                        targetClientOut.write("PREPARE_CHAT\n".getBytes());
+                        targetClientOut.write(fromDetails.getBytes());
+                        targetClientOut.flush();
+                
+                } else {
+                    //targetClientOut.write(userRequest.getBytes());
+                    //targetClientOut.flush();
                     
-                    }*/
+                    
                 }
         }
             

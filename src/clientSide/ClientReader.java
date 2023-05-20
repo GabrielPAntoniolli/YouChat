@@ -14,6 +14,8 @@ import java.io.OutputStream;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Scanner;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -25,10 +27,12 @@ public class ClientReader implements Runnable {
    private OutputStream out;
    public String name;
    private ArrayList<String> allUsers = new ArrayList<>();
+   private String clientName;
    
-    public ClientReader(Socket socket, OutputStream out) {
+    public ClientReader(Socket socket, OutputStream out, String clientName) {
         this.socket = socket;
         this.out = out;
+        this.clientName = clientName;
     }
     
 
@@ -61,14 +65,31 @@ public class ClientReader implements Runnable {
                     }
                     setUsers(allUsers);
                 }
-                if(message.equals("INVITATION_REQUEST")){
+                if(message.equals("JOIN_SERVER_APPROVED")){
+                    
+                    Thread menuInteraction = new Thread(new MenuInteraction(out,clientName));
+                    menuInteraction.start();
+                
+                }
+                if(message.equals("PREPARE_CHAT")){
+                        String from = scanner.nextLine();
+                        System.out.println("PREPARING CHAT...");
+                        Thread.sleep(2000);
+                        boolean valid = true;
+                        while(valid){
+                            String newMessage = scanner.nextLine();
+                            System.out.println(from + "> " + newMessage);
+                        
+                        }
                 
                     
                 }
             }
         } catch (IOException e) {
             e.printStackTrace();
-        }
+        } catch (InterruptedException ex) {
+           Logger.getLogger(ClientReader.class.getName()).log(Level.SEVERE, null, ex);
+       }
     }
     
 }

@@ -18,25 +18,23 @@ import static serverSide.WebSocketServer.currentUsers;
  *
  * @author gabri
  */
-public class MenuInteraction  {
+public class MenuInteraction implements Runnable {
 
     public String name;
     private OutputStream out;
-    Scanner sc;
-    Scanner serverScanner;
+    Scanner sc = new Scanner(System.in);
 
-    public MenuInteraction(OutputStream out, Scanner sc, Scanner serverScanner) {
-        this.sc = sc;
+    public MenuInteraction(OutputStream out, String name) {
         this.out = out;
-        this.serverScanner = serverScanner;
+        this.name = name;
     }
     
     public synchronized void setName(String name){
         this.name = name;
     }
 
-    public synchronized void display() {
-    
+    @Override
+    public void run() {
         try{
             System.out.println("Main Menu\n");
             System.out.println("Please Select an Option: [numbers only]");
@@ -61,34 +59,5 @@ public class MenuInteraction  {
                 Logger.getLogger(MenuInteraction.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
-    }  
-//        try {
-//            out.write("Here is a list of available users.\n".getBytes());
-//            int count = 0;
-//            for (String user : currentUsers) {
-//                count++;
-//                String msg = "";
-//                if (user == name && currentUsers.size() == 1) {
-//                    msg = "No Users Available yet!\n";
-//                    out.write(msg.getBytes());
-//                    out.write("Please insert 'r' to refresh the list\n".getBytes());
-//                } else {
-//                    if (user != name) {
-//                        msg = count + "_ " + user + "\n";
-//                        out.write(msg.getBytes());
-//                        out.write("Please select the ID of the user you want to chat with\n".getBytes());
-//                    }
-//                }
-//            }
-//            out.flush();
-//
-//        } catch (IOException ex) {
-//            Logger.getLogger(MenuInteraction.class.getName()).log(Level.SEVERE, null, ex);
-//        }
-//private void sendRequest(int userID) throws IOException {
-//        ClientConnection targetClient = connectedClients.get(userID);
-//        String msg = name + " is inviting you for a chat, would you like to accept? [ y / n ]\n";
-//        targetClient.out.write(msg.getBytes());
-//        targetClient.out.write("INVITATION_REQUEST\n".getBytes());
-//        targetClient.out.flush();
+    }
 }

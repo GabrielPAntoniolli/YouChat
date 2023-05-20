@@ -22,10 +22,13 @@ public class Client {
     
     public static ArrayList<String> users = new ArrayList<>();
     private static HashMap<Integer,String> userMap = new HashMap<>();
+    public static ArrayList<String> options = new ArrayList<>();
+    public static ArrayList<String> displayItems = new ArrayList<>();
+    public static HashMap<Integer, String> map = new HashMap<>();
+    
     
     public static void setUsers(ArrayList<String> list){
         users = list;
-        
     }
     
     public static ArrayList<String> getUsers(){
@@ -41,44 +44,22 @@ public class Client {
             Scanner sc = new Scanner(System.in);
             Scanner serverScanner = new Scanner(in).useDelimiter("\n");
             
-            Thread readThread = new Thread(new ClientReader(socket,out));
+            
+            System.out.println("Please insert your name:\n");
+            String name = sc.nextLine();
+            String clientName = name;
+            
+            Thread readThread = new Thread(new ClientReader(socket,out,clientName));
             readThread.start();
             readThread.join(1000);
 
             out.write("INSERT_NAME\n".getBytes());  
-            System.out.println("Please insert your name:\n");
-            String name = sc.nextLine();
-            String clientName = name;
             name += "\n";
             
             out.write(name.getBytes());
             out.write("JOIN_SERVER\n".getBytes());
             out.flush();
-            MenuInteraction menu = new MenuInteraction(out, sc, serverScanner);
-            menu.setName(clientName);
-            menu.display();
             
-            // create a new thread to continuously read messages from the server
-            
-            
-//            while (valid) {
-//                
-//                System.out.print(">");
-//                String message = scanner.nextLine();
-//                
-//                /**
-//                 * This + "\n" is quite important because without it the Scanner.nextLine() in the ClientConnection class 
-//                 * would not stop waiting for the message since the way it stops is when he finds the \n delimeter.
-//                 * I confess it took me some time to figure this out.
-//                 */
-//                out.write((message + "\n").getBytes());
-//                out.flush();
-//                
-//                if(message.equals("exit")){
-//                    valid = false;
-//                }
-//            }
-//            socket.close();
         } catch (IOException e) {
             e.printStackTrace();
         }

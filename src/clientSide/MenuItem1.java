@@ -5,7 +5,10 @@
  */
 package clientSide;
 
+import static clientSide.Client.displayItems;
 import static clientSide.Client.getUsers;
+import static clientSide.Client.map;
+import static clientSide.Client.options;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.util.ArrayList;
@@ -20,14 +23,8 @@ public class MenuItem1 {
 
     private String name;
     private OutputStream out;
-    private HashMap<Integer, String> map;
-    private ArrayList<String> options;
-    private ArrayList<String> displayItems;
 
     public MenuItem1(OutputStream out, String name) {
-        this.displayItems = new ArrayList<>();
-        this.map = new HashMap<>();
-        this.options = new ArrayList<>();
         this.out = out;
         this.name = name;
 
@@ -48,55 +45,54 @@ public class MenuItem1 {
         // Checking My Get Users variable content
         //getUsers().iterator().forEachRemaining(el -> System.out.println(el));
         int counter = 0;
-        
         for (String user : getUsers()) {
             counter++;
             boolean valid = true;
             map.put(counter, user);
-            
-            if(!options.contains(user)){
+
+            if (!options.contains(user)) {
                 options.add(user);
                 displayItems.add(counter + "_ " + user);
             }
-            
-        }     
-        
-            if (getUsers().size() == 1) {
-                System.out.println("No Users Available yet!\n");
-                System.out.println("Please insert 'r' to refresh the list");
 
-                if (internal.nextLine().equals("r")) {
+        }
+
+        if (getUsers().size() == 1) {
+            System.out.println("No Users Available yet!\n");
+            System.out.println("Please insert 'r' to refresh the list");
+
+            if (internal.nextLine().equals("r")) {
+                out.write("DECISION_1\n".getBytes());
+                display();
+
+            } else {
+                // Maybe go back to previous menu would be good
+                System.out.println("Command not recognized, leaving application");
+                System.exit(0);
+            }
+
+        } else if (getUsers().size() > 1) {
+            /**
+             * Display the user alternatives for the current client.
+             */
+            for (String curr : displayItems) {
+                if (!curr.contains(name)) {
+                    System.out.println(curr);
+                }
+            }
+            
+            String decision = internal.nextLine();
+                if (decision.equals("r")) {
                     out.write("DECISION_1\n".getBytes());
                     display();
-
-                } else {
-                    // Maybe go back to previous menu would be good
-                    System.out.println("Command not recognized, leaving application");
-                    System.exit(0);
-                }
-                
-            } else if(getUsers().size() > 1){
-            
-                /**
-                 * Display the user alternatives for the current client.
-                 */
-                for (String curr : displayItems) {
-                    if (!curr.contains(name)) {
-                        System.out.println(curr);
-                    } 
-                }
-                String decision = internal.nextLine();
-                if(decision.equals("r")){
-                    out.write("DECISION_1\n".getBytes());
-                    display();
-                } else if(decision.matches("[0-9]+")){
+                } else if (decision.matches("[0-9]+")) {
                     /*
                      * send message to server requesting that user
                      * server has to find a way of stopping all the process of the requested client and open chat
-                    
-                    */
-                    
-                    String serverComm = "CHAT_REQUEST\n" ;
+
+                     */
+
+                    String serverComm = "CHAT_REQUEST\n";
                     String from = name + "\n";
                     String to = map.get(Integer.parseInt(decision)) + "\n";
 
@@ -104,46 +100,21 @@ public class MenuItem1 {
                     out.write(from.getBytes());
                     out.write(to.getBytes());
                     out.flush();
+                    Thread.sleep(3000);
+                    System.out.println("Chat Started");
+                    System.out.println("You can now start typing");
+                    System.out.println("to exit type 'exit' *single quotes included*");
+                    boolean valid = true;
+                    while(true){
+                    
+                        System.out.print(name + "> ");
+                        String msg = internal.nextLine() + "\n";
+                        out.write(msg.getBytes());
+                    
+                    }
+                    
                 }
-                
-                
-            }
 
-            
-        
-
-//            if (getUsers().size() == 1) {
-//                
-//
-//                
-//
-//            } else {
-//                String msg = "";
-//                for (String user : getUsers()) {
-//                    
-//                    options.add(getUsers().size()+"_ " + user );
-//                    if(!user.equals(name)){
-//                        msg = getUsers().size() + "_ " + user;
-//                        System.out.println(msg);
-//                    }
-//                }
-//            
-//                String decision = internal.nextLine();
-//                if (decision.equals("r")) {
-//                    out.write("DECISION_1\n".getBytes());
-//                    display();
-//                } else {
-//                    if(decision.length() < 2 && decision.matches("[0-9]+")){
-//
-//                    }
-//                }
-//            
-//            
-//            
-//            }
-        //                 else {
-        //                    System.out.println("Command not recognized, leaving application");
-        //                    System.exit(0);
-        //                }
+        }
     }
 }

@@ -11,13 +11,14 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Random;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class WebSocketServer {
   
 
     public static ConcurrentLinkedQueue<String> currentUsers = new ConcurrentLinkedQueue<>();
-    public static ArrayList<ClientConnection> connectedClients = new ArrayList<>();
+    public static ConcurrentHashMap<String,Socket> connectedClients = new ConcurrentHashMap<>();
 
 
     public static void main(String[] args) throws IOException {
